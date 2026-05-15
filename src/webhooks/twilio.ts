@@ -65,7 +65,7 @@ export async function handleTwilioWebhook(req: Request, res: Response): Promise<
 
     const leadName = waConfig.leads?.[from] || null;
 
-    const response = await generateResponse(text, history, waConfig, siteConfig, leadName);
+    const response = await generateResponse(text, history, waConfig, siteConfig, clientId, from, leadName);
 
     await appendMessage(clientId, from, "user", text, leadName);
     await appendMessage(clientId, from, "assistant", response);
