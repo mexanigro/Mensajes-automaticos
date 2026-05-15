@@ -23,4 +23,8 @@ export const env = {
     accountSid: required("TWILIO_ACCOUNT_SID"),
     authToken: required("TWILIO_AUTH_TOKEN"),
   },
+  google: process.env.GOOGLE_CLIENT_ID ? {
+    clientId: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+  } : undefined,
 } as const;

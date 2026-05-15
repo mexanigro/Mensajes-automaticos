@@ -2,6 +2,7 @@ import { getDb } from "../config/firebase-admin.js";
 import { FieldValue } from "firebase-admin/firestore";
 import { format, parse, startOfDay, addMinutes, setHours, setMinutes, isBefore, isAfter } from "date-fns";
 import { checkSlotAvailable, resolveRules } from "./booking.js";
+import { createCalendarEvent } from "./calendar.js";
 import type { Appointment, StaffMember, BusinessRules } from "../types.js";
 
 export async function getAppointmentsForDate(
@@ -58,6 +59,7 @@ export interface BookAppointmentInput {
   customerEmail?: string;
   rules: Partial<BusinessRules>;
   staff: StaffMember;
+  serviceName?: string;
 }
 
 export async function bookAppointment(input: BookAppointmentInput): Promise<{ ok: boolean; id?: string; error?: string }> {
@@ -114,6 +116,16 @@ export async function bookAppointment(input: BookAppointmentInput): Promise<{ ok
 
     upsertCustomer(input.clientId, input.customerName, input.customerPhone, input.customerEmail)
       .catch(err => console.warn("[appointment] customer upsert failed (non-fatal):", err));
+
+    createCalendarEvent(input.clientId, {
+      date: input.date,
+      time: input.time,
+      duration: input.duration,
+      customerName: input.customerName,
+      customerPhone: input.customerPhone,
+      serviceName: input.serviceName || input.serviceId,
+      staffName: input.staff.name,
+    }).catch(err => console.warn("[appointment] calendar sync failed (non-fatal):", err));
 
     return { ok: true, id: appointmentId };
   } catch (err) {

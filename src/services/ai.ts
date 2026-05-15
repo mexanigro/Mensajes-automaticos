@@ -104,6 +104,7 @@ async function executeTool(
       customerPhone: ctx.callerPhone,
       rules: ctx.siteConfig.businessRules ?? {},
       staff: staticStaff,
+      serviceName: service.name,
     });
 
     if (result.ok) {
