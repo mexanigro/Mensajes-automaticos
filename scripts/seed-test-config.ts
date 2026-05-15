@@ -5,6 +5,7 @@
  * Requiere las env vars de Firebase configuradas (.env o en el shell).
  */
 
+import "dotenv/config";
 import { initializeApp, cert, type ServiceAccount } from "firebase-admin/app";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
@@ -72,12 +73,70 @@ Idioma: detecta el idioma del primer mensaje y responde siempre en ese idioma (h
   updatedAt: FieldValue.serverTimestamp(),
 };
 
+const testSiteConfig = {
+  brand: {
+    name: "Arzac Studio",
+    tagline: "Webs profesionales para negocios locales",
+    aiPersona: "Liam de Arzac Studio, apasionado por la tecnologia y los negocios locales",
+  },
+  contact: {
+    phone: "+972557719141",
+    email: "liam@arzacstudio.com",
+    city: "Israel",
+  },
+  hours: {
+    sunday: { open: "09:00", close: "18:00" },
+    monday: { open: "09:00", close: "18:00" },
+    tuesday: { open: "09:00", close: "18:00" },
+    wednesday: { open: "09:00", close: "18:00" },
+    thursday: { open: "09:00", close: "18:00" },
+    friday: { open: "09:00", close: "14:00" },
+    saturday: null,
+  },
+  services: [
+    { id: "consulta", name: "Consulta inicial", price: 0, duration: 30, description: "Reunion para conocer el negocio" },
+    { id: "demo", name: "Demo web personalizada", price: 0, duration: 45, description: "Presentacion de la web demo" },
+    { id: "onboarding", name: "Onboarding completo", price: 790, duration: 60, description: "Configuracion inicial del servicio" },
+  ],
+  staff: [
+    {
+      id: "liam",
+      slug: "liam",
+      name: "Liam",
+      photoUrl: "",
+      specialty: "Consultor",
+      bio: "Fundador de Arzac Studio",
+      portfolio: [],
+      schedule: {
+        sunday: { isOpen: true, hours: { start: "09:00", end: "18:00" }, breaks: [{ label: "Almuerzo", start: "13:00", end: "14:00" }] },
+        monday: { isOpen: true, hours: { start: "09:00", end: "18:00" }, breaks: [{ label: "Almuerzo", start: "13:00", end: "14:00" }] },
+        tuesday: { isOpen: true, hours: { start: "09:00", end: "18:00" }, breaks: [{ label: "Almuerzo", start: "13:00", end: "14:00" }] },
+        wednesday: { isOpen: true, hours: { start: "09:00", end: "18:00" }, breaks: [{ label: "Almuerzo", start: "13:00", end: "14:00" }] },
+        thursday: { isOpen: true, hours: { start: "09:00", end: "18:00" }, breaks: [{ label: "Almuerzo", start: "13:00", end: "14:00" }] },
+        friday: { isOpen: true, hours: { start: "09:00", end: "14:00" }, breaks: [] },
+        saturday: { isOpen: false, hours: { start: "00:00", end: "00:00" }, breaks: [] },
+      },
+      blockedDates: [],
+      blockedSlots: [],
+    },
+  ],
+  businessRules: {
+    bufferMinutes: 10,
+    maxAdvanceBookingDays: 60,
+    minAdvanceBookingHours: 1,
+    autoConfirm: true,
+  },
+};
+
 async function seed() {
   await db.collection("whatsapp_config").doc(CLIENT_ID).set(testConfig);
-  console.log(`whatsapp_config/${CLIENT_ID} creado exitosamente`);
+  console.log(`whatsapp_config/${CLIENT_ID} creado`);
+
+  await db.collection("config").doc(CLIENT_ID).set(testSiteConfig, { merge: true });
+  console.log(`config/${CLIENT_ID} actualizado con staff + services`);
+
   console.log(`Numero Twilio: ${TWILIO_PHONE_NUMBER}`);
   console.log(`Admin phone: ${ADMIN_PHONE}`);
-  console.log("\nAhora configura el webhook de Twilio apuntando a tu URL de Railway/webhook");
 }
 
 seed().catch(console.error);
